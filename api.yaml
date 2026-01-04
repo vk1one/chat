@@ -68,4 +68,109 @@ components:
 
     MessageResponse:
       allOf:
-        - $ref: '#/
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            id:
+              type: integer
+            conv_id:
+              type: integer
+            sender_id:
+              type: integer
+            content:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+
+paths:
+  /auth/signup:
+    post:
+      summary: Регистрация нового пользователя
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/User'
+
+  /auth/login:
+    post:
+      summary: Авторизация пользователя
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Токен получен
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/AuthResponse'
+
+  /conversations:
+    get:
+      summary: Получить список чатов пользователя
+      security:
+        - bearerAuth: []
+      operationId: listConversations
+      responses:
+        '200':
+          description: Список чатов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conversation'
+
+  /conversations/{id}/messages:
+    get:
+      summary: Получить историю сообщений в диалоге
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: История сообщений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+    post:
+      summary: Отправить сообщение в диалог
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '201':
+          description: Сообщение сохранено
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/MessageResponse'
+              
